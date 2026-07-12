@@ -1,0 +1,89 @@
+name: Hello World Workflow
+
+on:
+  # workflow_dispatch:
+  #   inputs:
+  #       my_input:
+  #           type: string
+  #           description: manual inputs
+  push:
+    branches:
+      - main          # Only trigger on pushes to "main", not other branches
+  pull_request:
+    branches:
+      - main          # Only trigger on PRs targeting "main"
+
+jobs:
+
+  helloworld:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Say hello
+        run: |
+            echo "Hello, GitHub Actions! Welcome to the course."
+            echo ${{ inputs.my_input }}
+            echo "This is a test secret ${{ secrets.TEST_SECRET }}"
+            echo "This is my first variable usage ${{ vars.FIRST_VARIABLE }}"
+
+      - name: Print date and time
+        run: |
+          echo "Current UTC time: $(date -u)"
+          echo "Runner timezone: $(date)"
+
+      - name: Print GitHub context info
+        run: |
+          echo "============================================"
+          echo "  GITHUB ACTIONS CONTEXT INFORMATION"
+          echo "============================================"
+          echo "  Who triggered this run: ${{ github.actor }}"
+          echo "  What triggered it:      ${{ github.event_name }}"
+          echo "  Branch / Ref:           ${{ github.ref }}"
+          echo "  Commit SHA:             ${{ github.sha }}"
+          echo "  Repository:             ${{ github.repository }}"
+          echo "  Run number:             ${{ github.run_number }}"
+          echo "  Run ID:                 ${{ github.run_id }}"
+          echo "============================================"
+
+      - name: Print runner info
+        run: |
+          echo "Runner OS:   ${{ runner.os }}"
+          echo "Runner arch: ${{ runner.arch }}"
+          echo "Runner temp: ${{ runner.temp }}"
+          echo ""
+          echo "System info:"
+          uname -a
+          echo ""
+          echo "Available disk space:"
+          df -h /
+
+      - name: List workspace files
+        run: |
+          echo "Workspace path: $GITHUB_WORKSPACE"
+          echo ""
+          echo "Files in the workspace:"
+          ls -la $GITHUB_WORKSPACE
+    
+  goodbye:
+    needs: helloworld
+    if: failure()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Say Good Bye
+        run: |
+          echo "Say good bye to everyone"
+
+  dontsaygooodbye:
+    needs: helloworld
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Don't say good bye
+        run: |
+          echo "I am not ready to go"
+    
